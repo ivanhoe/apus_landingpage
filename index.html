@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apus — The First AI-Native iOS Dev Loop</title>
+  <meta name="description" content="Write Swift in VS Code. Hot reload in seconds. Claude sees the result. Never leave your editor.">
+  <meta property="og:title" content="Apus — The First AI-Native iOS Dev Loop">
+  <meta property="og:description" content="Write Swift in VS Code. Hot reload in seconds. Claude sees the result. Never leave your editor.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Variables ─── */
+    :root {
+      --bg:        #06060f;
+      --bg-2:      #0c0c1e;
+      --bg-3:      #111128;
+      --cyan:      #00d4ff;
+      --cyan-2:    #38bdf8;
+      --cyan-dim:  rgba(0,212,255,0.10);
+      --cyan-glow: 0 0 32px rgba(0,212,255,0.35);
+      --violet:    #8b5cf6;
+      --green:     #22c55e;
+      --green-dim: rgba(34,197,94,0.08);
+      --red:       #f43f5e;
+      --red-dim:   rgba(244,63,94,0.08);
+      --amber:     #f59e0b;
+      --border:        rgba(255,255,255,0.06);
+      --border-cyan:   rgba(0,212,255,0.22);
+      --text:      #e2e8f0;
+      --text-dim:  #94a3b8;
+      --text-muted:#475569;
+      --ff-display: 'Syne', sans-serif;
+      --ff-body:    'DM Sans', sans-serif;
+      --ff-mono:    'JetBrains Mono', monospace;
+    }
+
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--ff-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── Background grid + orbs ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width:700px;height:700px;background:rgba(0,212,255,0.055);top:-220px;right:-180px; }
+    .orb-2 { width:500px;height:500px;background:rgba(139,92,246,0.045);bottom:15%;left:-140px; }
+    .orb-3 { width:400px;height:400px;background:rgba(0,212,255,0.03);bottom:-100px;right:10%; }
+
+    /* ─── Layout ─── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── Nav ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(6,6,15,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--ff-display);
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .logo-mark {
+      width: 30px; height: 30px;
+      background: var(--cyan);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: #06060f;
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+    }
+    .nav-links {
+      display: flex; gap: 36px; list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-ctas { display: flex; gap: 10px; align-items: center; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: var(--ff-body);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--cyan);
+      color: #06060f;
+    }
+    .btn-primary:hover {
+      background: #1de0ff;
+      box-shadow: var(--cyan-glow);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+    }
+    .btn-lg  { padding: 13px 26px; font-size: 0.95rem; border-radius: 10px; }
+    .btn-xl  { padding: 17px 38px; font-size: 1.05rem; border-radius: 12px; }
+
+    /* ─── Eyebrow / label chips ─── */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--ff-mono);
+      font-size: 0.7rem;
+      color: var(--cyan);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border: 1px solid var(--border-cyan);
+      border-radius: 100px;
+      background: var(--cyan-dim);
+    }
+    .chip-dot {
+      width: 6px; height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.4; transform:scale(0.7); }
+    }
+    .section-label {
+      font-family: var(--ff-mono);
+      font-size: 0.7rem;
+      color: var(--cyan);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* ─── Typography ─── */
+    h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+      font-weight: 800;
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      margin-bottom: 22px;
+    }
+    h1 .accent { color: var(--cyan); }
+    h2 {
+      font-family: var(--ff-display);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 14px;
+    }
+    .sub {
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      line-height: 1.65;
+      max-width: 560px;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 148px 0 72px;
+      text-align: center;
+    }
+    .hero-chip { margin-bottom: 28px; }
+    .hero-sub {
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 68px;
+    }
+
+    /* ─── IDE Visualization ─── */
+    .ide-wrap {
+      position: relative;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    /* glow behind the IDE */
+    .ide-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -30px;
+      background: radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .ide-grid {
+      display: grid;
+      grid-template-columns: 1fr 260px 1fr;
+      gap: 10px;
+      padding: 20px;
+      background: rgba(12,12,30,0.9);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      backdrop-filter: blur(10px);
+      text-align: left;
+    }
+    .panel {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .p-chrome {
+      padding: 9px 13px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.25);
+      flex-shrink: 0;
+    }
+    .p-dots { display: flex; gap: 5px; }
+    .p-dot  { width: 10px; height: 10px; border-radius: 50%; }
+    .p-dot:nth-child(1) { background: #ff5f57; }
+    .p-dot:nth-child(2) { background: #febc2e; }
+    .p-dot:nth-child(3) { background: #28c840; }
+    .p-title {
+      flex: 1;
+      text-align: center;
+      font-family: var(--ff-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    /* Editor */
+    .editor-body {
+      padding: 14px 16px;
+      font-family: var(--ff-mono);
+      font-size: 0.7rem;
+      line-height: 1.85;
+      flex: 1;
+    }
+    .cl { display: flex; gap: 14px; }
+    .ln { color: var(--text-muted); min-width: 14px; text-align: right; user-select: none; }
+    .kw   { color: #c084fc; }
+    .typ  { color: #67e8f9; }
+    .str  { color: #86efac; }
+    .fn   { color: #fde68a; }
+    .prop { color: #fdba74; }
+    .cmt  { color: var(--text-muted); font-style: italic; }
+    .cursor-blink {
+      display: inline-block;
+      width: 2px; height: 1em;
+      background: var(--cyan);
+      margin-left: 1px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .hot-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+      padding: 4px 10px;
+      border: 1px solid var(--border-cyan);
+      border-radius: 4px;
+      background: var(--cyan-dim);
+      color: var(--cyan);
+      font-family: var(--ff-mono);
+      font-size: 0.62rem;
+      opacity: 0;
+      animation: badge-pop 9s ease infinite 3s;
+    }
+    @keyframes badge-pop {
+      0%,35%,88%,100% { opacity:0; transform:translateY(5px); }
+      42%,80%          { opacity:1; transform:translateY(0); }
+    }
+
+    /* Simulator */
+    .sim-body {
+      flex: 1;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .iphone {
+      width: 132px; height: 228px;
+      border: 2px solid rgba(255,255,255,0.10);
+      border-radius: 22px;
+      background: #0a0a14;
+      position: relative;
+      overflow: hidden;
+    }
+    .iphone-notch {
+      width: 52px; height: 9px;
+      background: #000;
+      border-radius: 0 0 7px 7px;
+      margin: 0 auto;
+    }
+    .app-content { padding: 5px; }
+    .a-nav {
+      padding: 3px 6px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 3px;
+      font-size: 0.42rem;
+      color: var(--text-dim);
+      font-family: var(--ff-body);
+      margin-bottom: 4px;
+    }
+    .a-row {
+      padding: 4px 6px;
+      border-radius: 3px;
+      font-size: 0.38rem;
+      color: var(--text-dim);
+      font-family: var(--ff-body);
+      background: rgba(255,255,255,0.03);
+      margin-bottom: 3px;
+      transition: all 0.4s;
+    }
+    .a-row.flash {
+      background: rgba(0,212,255,0.12);
+      color: var(--cyan);
+    }
+    .reload-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,212,255,0.12);
+      opacity: 0;
+      animation: reload-flash 9s ease infinite 3s;
+    }
+    @keyframes reload-flash {
+      0%,40%,55%,100% { opacity:0; }
+      43%             { opacity:1; }
+    }
+    .sim-status {
+      font-family: var(--ff-mono);
+      font-size: 0.58rem;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-dot {
+      width: 5px; height: 5px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Claude chat */
+    .claude-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex: 1;
+      font-size: 0.68rem;
+    }
+    .msg {
+      padding: 8px 10px;
+      border-radius: 7px;
+      line-height: 1.5;
+    }
+    .msg-user {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .msg-claude {
+      background: rgba(0,212,255,0.06);
+      border: 1px solid var(--border-cyan);
+      color: var(--text);
+    }
+    .msg-label {
+      font-size: 0.58rem;
+      margin-bottom: 3px;
+      font-family: var(--ff-mono);
+    }
+    .lbl-you    { color: var(--text-muted); }
+    .lbl-claude { color: var(--cyan); }
+    .tool-line {
+      padding: 3px 8px;
+      border-left: 2px solid var(--cyan);
+      background: rgba(0,0,0,0.25);
+      border-radius: 0 4px 4px 0;
+      font-family: var(--ff-mono);
+      font-size: 0.6rem;
+      color: var(--cyan);
+    }
+    .tool-ok { border-color: var(--green); color: var(--green); }
+    .msg-success { color: var(--green); }
+
+    /* ─── PROBLEM section ─── */
+    .problem { padding: 108px 0; }
+    .problem-head { margin-bottom: 56px; }
+    .ba-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .ba-card {
+      border-radius: 16px;
+      padding: 36px;
+      border: 1px solid;
+    }
+    .ba-card.before {
+      background: var(--red-dim);
+      border-color: rgba(244,63,94,0.18);
+    }
+    .ba-card.after {
+      background: var(--green-dim);
+      border-color: rgba(34,197,94,0.18);
+    }
+    .ba-label {
+      font-family: var(--ff-display);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .before .ba-label { color: var(--red); }
+    .after  .ba-label { color: var(--green); }
+    .ba-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .ba-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+    .ba-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
+    .ba-text strong { color: var(--text); }
+
+    /* ─── LOOP section ─── */
+    .loop-sec {
+      padding: 108px 0;
+      text-align: center;
+    }
+    .loop-head { margin-bottom: 0; }
+    .loop-canvas {
+      position: relative;
+      width: 520px;
+      height: 520px;
+      margin: 56px auto;
+    }
+    .loop-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 108px; height: 108px;
+      border: 1.5px solid var(--border-cyan);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff-display);
+      font-weight: 800;
+      font-size: 0.72rem;
+      color: var(--cyan);
+      gap: 3px;
+      z-index: 2;
+    }
+    .loop-center .lc-icon { font-size: 1.4rem; }
+    .loop-node {
+      position: absolute;
+      width: 108px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      z-index: 2;
+      cursor: default;
+    }
+    .loop-node.active {
+      border-color: var(--border-cyan);
+      box-shadow: 0 0 24px rgba(0,212,255,0.15);
+      transform: scale(1.06);
+    }
+    .ln-icon  { font-size: 1.4rem; margin-bottom: 6px; }
+    .ln-title { font-family: var(--ff-display); font-weight: 700; font-size: 0.72rem; margin-bottom: 3px; }
+    .ln-sub   { font-family: var(--ff-mono); font-size: 0.54rem; color: var(--text-muted); }
+
+    /* Pentagon positions (r=178px, center=260,260) */
+    /* n=1 top:     260-178= 82  → top: 82-54=28px  left:50% tx(-50%) */
+    .loop-node:nth-child(1) { top: 24px;  left: 50%; transform: translateX(-50%); }
+    .loop-node:nth-child(1).active { transform: translateX(-50%) scale(1.06); }
+    /* n=2 top-right: angle=72° x=260+178*sin72=430 y=260-178*cos72=205 → right=520-430-108=−18... */
+    /* Let me use simpler math: top-right */
+    .loop-node:nth-child(2) { top: 136px; right: 12px; }
+    /* n=3 bottom-right: */
+    .loop-node:nth-child(3) { bottom: 36px; right: 48px; }
+    /* n=4 bottom-left: */
+    .loop-node:nth-child(4) { bottom: 36px; left: 48px; }
+    /* n=5 top-left: */
+    .loop-node:nth-child(5) { top: 136px; left: 12px; }
+
+    /* ─── CAPABILITIES ─── */
+    .caps { padding: 108px 0; }
+    .caps-head { margin-bottom: 56px; }
+    .caps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .cap {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .cap::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .cap:hover { border-color: var(--border-cyan); background: var(--bg-3); }
+    .cap:hover::after { opacity: 1; }
+    .cap-icon  { font-size: 1.4rem; margin-bottom: 10px; }
+    .cap-title { font-family: var(--ff-display); font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; }
+    .cap-desc  { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+    /* ─── SETUP ─── */
+    .setup { padding: 108px 0; }
+    .setup-head { margin-bottom: 56px; }
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .step-num  { font-family: var(--ff-mono); font-size: 0.68rem; color: var(--cyan); letter-spacing: 0.1em; margin-bottom: 10px; }
+    .step-title{ font-family: var(--ff-display); font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
+    .term {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .term-chrome {
+      padding: 7px 12px;
+      background: rgba(255,255,255,0.035);
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 5px;
+    }
+    .term-body {
+      padding: 14px 16px;
+      font-family: var(--ff-mono);
+      font-size: 0.73rem;
+      line-height: 1.75;
+    }
+    .t-p { color: var(--green); }
+    .t-c { color: var(--text); }
+    .t-o { color: var(--text-muted); }
+    .t-k { color: var(--cyan); }
+    .t-s { color: #86efac; }
+    .t-q { color: #fde68a; }
+    .t-ok{ color: var(--green); }
+
+    /* ─── CTA ─── */
+    .cta-sec { padding: 120px 0; text-align: center; }
+    .cta-card {
+      max-width: 720px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(0,212,255,0.055), rgba(139,92,246,0.055));
+      border: 1px solid var(--border-cyan);
+      border-radius: 24px;
+      padding: 72px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% -20%, rgba(0,212,255,0.1) 0%, transparent 65%);
+    }
+    .cta-chip { margin-bottom: 28px; position: relative; }
+    .cta-title {
+      font-family: var(--ff-display);
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.08;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .cta-sub { color: var(--text-dim); font-size: 1rem; margin-bottom: 40px; position: relative; }
+    .cta-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+    }
+    .foot-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .foot-text { font-size: 0.82rem; color: var(--text-muted); }
+    .foot-links { display: flex; gap: 22px; }
+    .foot-links a {
+      font-size: 0.82rem; color: var(--text-muted);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .foot-links a:hover { color: var(--text); }
+
+    /* ─── Scroll reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Mobile ─── */
+    @media (max-width: 900px) {
+      .ide-grid { grid-template-columns: 1fr; }
+      .ide-grid .panel:nth-child(2) { display: none; }
+      .ba-grid { grid-template-columns: 1fr; }
+      .caps-grid { grid-template-columns: repeat(2,1fr); }
+      .setup-grid { grid-template-columns: 1fr; }
+      .loop-canvas { width: 340px; height: 340px; }
+      .loop-center { width: 76px; height: 76px; font-size: 0.6rem; }
+      .loop-node { width: 82px; }
+      .ln-title { font-size: 0.6rem; }
+      .nav-links { display: none; }
+      .cta-card { padding: 44px 28px; }
+      .foot-inner { flex-direction: column; gap: 16px; text-align: center; }
+    }
+    @media (max-width: 540px) {
+      h1 { font-size: 2.4rem; }
+      .caps-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ─── Nav ─── -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-mark">A</div>
+        Apus
+      </a>
+      <ul class="nav-links">
+        <li><a href="#problem">Problem</a></li>
+        <li><a href="#loop">The Loop</a></li>
+        <li><a href="#capabilities">Runtime</a></li>
+        <li><a href="#setup">Setup</a></li>
+      </ul>
+      <div class="nav-ctas">
+        <a href="https://github.com/ivanhoe/apus" target="_blank" class="btn btn-ghost">GitHub</a>
+        <a href="/vote" class="btn btn-primary">Vote for Apus ↗</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Hero ─── -->
+  <section class="hero">
+    <div class="container">
+      <div class="chip hero-chip">
+        <span class="chip-dot"></span>
+        Release Before Ready 2026 · Guadalajara
+      </div>
+      <h1>The first <span class="accent">AI-native</span><br>iOS dev loop.</h1>
+      <p class="sub hero-sub">
+        Write Swift in VS Code. Hot reload in seconds.<br>
+        Claude sees the result. Never leave your editor.
+      </p>
+      <div class="hero-actions">
+        <a href="/vote" class="btn btn-primary btn-lg">Vote for Apus ↗</a>
+        <a href="/demo" class="btn btn-ghost btn-lg">Watch Demo</a>
+        <a href="https://github.com/ivanhoe/apus" target="_blank" class="btn btn-ghost btn-lg">GitHub</a>
+      </div>
+
+      <!-- IDE Visualization -->
+      <div class="ide-wrap reveal">
+        <div class="ide-grid">
+
+          <!-- Panel 1: VS Code editor -->
+          <div class="panel">
+            <div class="p-chrome">
+              <div class="p-dots">
+                <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
+              </div>
+              <div class="p-title">ContentView.swift</div>
+            </div>
+            <div class="editor-body">
+              <div class="cl"><span class="ln">1</span><span><span class="kw">import</span> SwiftUI</span></div>
+              <div class="cl"><span class="ln">2</span><span><span class="kw">import</span> <span class="typ">Apus</span></span></div>
+              <div class="cl"><span class="ln">3</span><span></span></div>
+              <div class="cl"><span class="ln">4</span><span><span class="kw">struct</span> <span class="typ">FeedView</span>: <span class="typ">View</span> {</span></div>
+              <div class="cl"><span class="ln">5</span><span>  <span class="prop">@State</span> <span class="kw">var</span> posts: [Post] = []</span></div>
+              <div class="cl"><span class="ln">6</span><span></span></div>
+              <div class="cl"><span class="ln">7</span><span>  <span class="kw">var</span> body: some <span class="typ">View</span> {</span></div>
+              <div class="cl"><span class="ln">8</span><span>    <span class="typ">List</span>(posts) { post <span class="kw">in</span></span></div>
+              <div class="cl"><span class="ln">9</span><span>      <span class="typ">PostRow</span>(post: post)</span></div>
+              <div class="cl"><span class="ln">10</span><span>    }</span></div>
+              <div class="cl"><span class="ln">11</span><span>    .<span class="fn">task</span> { <span class="kw">await</span> <span class="fn">loadFeed</span>() }</span></div>
+              <div class="cl"><span class="ln">12</span><span>    .<span class="fn">navigationTitle</span>(<span class="str">"Feed"</span>)<span class="cursor-blink"></span></span></div>
+              <div class="cl"><span class="ln">13</span><span>  }</span></div>
+              <div class="cl"><span class="ln">14</span><span>}</span></div>
+              <div class="hot-badge">⚡ Hot Reload — 0.3s</div>
+            </div>
+          </div>
+
+          <!-- Panel 2: Simulator -->
+          <div class="panel">
+            <div class="p-chrome">
+              <div class="p-dots">
+                <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
+              </div>
+              <div class="p-title">iPhone 16 Pro</div>
+            </div>
+            <div class="sim-body">
+              <div class="iphone">
+                <div class="iphone-notch"></div>
+                <div class="app-content">
+                  <div class="a-nav">Feed</div>
+                  <div class="a-row" id="ar1">Post from @sarah · 2h</div>
+                  <div class="a-row" id="ar2">Post from @mike · 4h</div>
+                  <div class="a-row" id="ar3">Post from @ana · 5h</div>
+                  <div class="a-row" id="ar4">Post from @raj · 6h</div>
+                </div>
+                <div class="reload-overlay"></div>
+              </div>
+              <div class="sim-status">
+                <div class="status-dot"></div>
+                localhost:9847
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 3: Claude Code -->
+          <div class="panel">
+            <div class="p-chrome">
+              <div class="p-dots">
+                <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
+              </div>
+              <div class="p-title">Claude Code — MCP</div>
+            </div>
+            <div class="claude-body">
+              <div class="msg msg-user">
+                <div class="msg-label lbl-you">You</div>
+                feed is showing empty, fix it
+              </div>
+              <div class="tool-line">▶ get_network_history</div>
+              <div class="tool-line">▶ get_logs</div>
+              <div class="tool-line">▶ get_screenshot</div>
+              <div class="msg msg-claude">
+                <div class="msg-label lbl-claude">Claude</div>
+                <span class="msg-success">3 failed requests to <code>/api/feed</code> — 401. Auth header missing in <code>loadFeed()</code>. Fixing now.</span>
+              </div>
+              <div class="tool-line tool-ok">▶ hot_reload → injected</div>
+              <div class="msg msg-claude">
+                <div class="msg-label lbl-claude">Claude</div>
+                <span class="msg-success">✓ Feed is loading — 4 posts visible in the screenshot.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Problem ─── -->
+  <section id="problem" class="problem">
+    <div class="container reveal">
+      <div class="problem-head">
+        <div class="section-label">// the problem</div>
+        <h2>Your AI can write Swift.<br>But it's flying blind.</h2>
+        <p class="sub">Until now, AI assistants couldn't see what was happening at runtime. You had to be the bridge — manually copying logs, screenshots, and errors into the chat.</p>
+      </div>
+
+      <div class="ba-grid">
+        <div class="ba-card before">
+          <div class="ba-label"><span>✗</span> Before Apus</div>
+          <div class="ba-item">
+            <span class="ba-icon">📋</span>
+            <span class="ba-text"><strong>Manual copy-paste</strong> — logs, screenshots, and network errors, manually fed into the chat. Every. Single. Bug.</span>
+          </div>
+          <div class="ba-item">
+            <span class="ba-icon">⏳</span>
+            <span class="ba-text"><strong>2–3 minute rebuilds</strong> — apply a fix, wait for Xcode to compile, check if it worked, repeat the cycle.</span>
+          </div>
+          <div class="ba-item">
+            <span class="ba-icon">🔀</span>
+            <span class="ba-text"><strong>Constant context switching</strong> — editor, simulator, terminal, Instruments, back to editor. AI loses context each time.</span>
+          </div>
+          <div class="ba-item">
+            <span class="ba-icon">🙈</span>
+            <span class="ba-text"><strong>AI works blind</strong> — Claude suggests fixes based on code alone. It can't see crashes, network failures, or what's on screen.</span>
+          </div>
+        </div>
+
+        <div class="ba-card after">
+          <div class="ba-label"><span>✓</span> With Apus</div>
+          <div class="ba-item">
+            <span class="ba-icon">👁</span>
+            <span class="ba-text"><strong>Claude sees everything</strong> — logs, network requests, UI hierarchy, screenshots. All live, all automatic.</span>
+          </div>
+          <div class="ba-item">
+            <span class="ba-icon">⚡</span>
+            <span class="ba-text"><strong>Hot reload in seconds</strong> — Swift changes inject without recompiling. See the result in under a second.</span>
+          </div>
+          <div class="ba-item">
+            <span class="ba-icon">🎯</span>
+            <span class="ba-text"><strong>Never leave VS Code</strong> — editor, live simulator preview, Claude chat. Zero context switches.</span>
+          </div>
+          <div class="ba-item">
+            <span class="ba-icon">🔁</span>
+            <span class="ba-text"><strong>Closed loop</strong> — Claude writes the fix, hot reloads it, confirms it worked in the screenshot. You just review.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── The Loop ─── -->
+  <section id="loop" class="loop-sec">
+    <div class="container reveal">
+      <div class="loop-head">
+        <div class="section-label">// the loop</div>
+        <h2>Five steps. Infinite velocity.</h2>
+        <p class="sub" style="margin: 0 auto;">Every iteration is faster than the last. The loop never breaks.</p>
+      </div>
+
+      <div class="loop-canvas">
+        <!-- SVG ring + animated dot -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" viewBox="0 0 520 520">
+          <defs>
+            <marker id="arr" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+              <polygon points="0 0, 7 2.5, 0 5" fill="rgba(0,212,255,0.35)"/>
+            </marker>
+          </defs>
+          <!-- Dashed orbit ring -->
+          <circle cx="260" cy="260" r="168" fill="none" stroke="rgba(0,212,255,0.09)" stroke-width="1.5" stroke-dasharray="10 6"/>
+          <!-- Animated flow dot on orbit -->
+          <circle r="5" fill="#00d4ff" opacity="0.75">
+            <animateMotion dur="5s" repeatCount="indefinite">
+              <mpath href="#orbit"/>
+            </animateMotion>
+          </circle>
+          <path id="orbit" d="M260,92 A168,168 0 1,1 259.9,92" fill="none"/>
+        </svg>
+
+        <div class="loop-center">
+          <div class="lc-icon">⚡</div>
+          <div>The Loop</div>
+        </div>
+
+        <div class="loop-node">
+          <div class="ln-icon">🚀</div>
+          <div class="ln-title">Bootstrap</div>
+          <div class="ln-sub">apus new MyApp</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-icon">👁</div>
+          <div class="ln-title">Live Preview</div>
+          <div class="ln-sub">VS Code sidebar</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-icon">✏️</div>
+          <div class="ln-title">Edit Swift</div>
+          <div class="ln-sub">No rebuild</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-icon">🧠</div>
+          <div class="ln-title">Claude Sees</div>
+          <div class="ln-sub">Full runtime</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-icon">✅</div>
+          <div class="ln-title">Confirmed</div>
+          <div class="ln-sub">Loop again</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Capabilities ─── -->
+  <section id="capabilities" class="caps">
+    <div class="container reveal">
+      <div class="caps-head">
+        <div class="section-label">// runtime visibility</div>
+        <h2>What Claude can see<br>inside your app.</h2>
+        <p class="sub">25+ MCP tools. Every layer exposed. Zero manual work.</p>
+      </div>
+
+      <div class="caps-grid">
+        <div class="cap">
+          <div class="cap-icon">📋</div>
+          <div class="cap-title">Real-time Logs</div>
+          <div class="cap-desc">App console output, streamed live. Claude reads your errors before you do.</div>
+        </div>
+        <div class="cap">
+          <div class="cap-icon">🌐</div>
+          <div class="cap-title">Network Traffic</div>
+          <div class="cap-desc">Every HTTP request and response. Headers, body, status, timing. Failures front and center.</div>
+        </div>
+        <div class="cap">
+          <div class="cap-icon">📸</div>
+          <div class="cap-title">Live Screenshot</div>
+          <div class="cap-desc">Current screen state on demand. Claude sees exactly what your user sees.</div>
+        </div>
+        <div class="cap">
+          <div class="cap-icon">🌳</div>
+          <div class="cap-title">UI Hierarchy</div>
+          <div class="cap-desc">Full SwiftUI and UIKit view tree with accessibility metadata and frame data.</div>
+        </div>
+        <div class="cap">
+          <div class="cap-icon">🗄️</div>
+          <div class="cap-title">App Storage</div>
+          <div class="cap-desc">UserDefaults, CoreData, SwiftData, Keychain — all readable at runtime.</div>
+        </div>
+        <div class="cap">
+          <div class="cap-icon">🧮</div>
+          <div class="cap-title">Memory Inspector</div>
+          <div class="cap-desc">Object graph and memory footprint. Spot retain cycles without Instruments.</div>
+        </div>
+        <div class="cap">
+          <div class="cap-icon">⚡</div>
+          <div class="cap-title">Hot Reload</div>
+          <div class="cap-desc">Claude writes a fix and injects it. No recompile. Result visible in under a second.</div>
+        </div>
+        <div class="cap">
+          <div class="cap-icon">🔬</div>
+          <div class="cap-title">Diagnostics</div>
+          <div class="cap-desc">Performance summary, crash traces, and full app health report in one tool call.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Setup ─── -->
+  <section id="setup" class="setup">
+    <div class="container reveal">
+      <div class="setup-head">
+        <div class="section-label">// setup</div>
+        <h2>Three commands.<br>You're in the loop.</h2>
+        <p class="sub">No Xcode config. No certificate drama. One Swift Package, zero dependencies.</p>
+      </div>
+
+      <div class="setup-grid">
+        <div>
+          <div class="step-num">// 01</div>
+          <div class="step-title">Create or attach</div>
+          <div class="term">
+            <div class="term-chrome">
+              <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
+            </div>
+            <div class="term-body">
+              <div><span class="t-p">$ </span><span class="t-c">apus new MyApp</span></div>
+              <div class="t-o">✓ Picking simulator...</div>
+              <div class="t-o">✓ Generating project...</div>
+              <div class="t-o">✓ xcodegen + build</div>
+              <div class="t-o">✓ Launching in simulator</div>
+              <div class="t-ok" style="margin-top:4px">✓ Ready at localhost:9847</div>
+              <br>
+              <div class="t-o" style="font-size:0.62rem"># existing project:</div>
+              <div><span class="t-p">$ </span><span class="t-c">apus init</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="step-num">// 02</div>
+          <div class="step-title">Connect Claude</div>
+          <div class="term">
+            <div class="term-chrome">
+              <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
+            </div>
+            <div class="term-body">
+              <div class="t-o" style="font-size:0.62rem">// .mcp.json</div>
+              <div><span class="t-k">{</span></div>
+              <div>&nbsp;&nbsp;<span class="t-q">"mcpServers"</span>: <span class="t-k">{</span></div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-q">"apus"</span>: <span class="t-k">{</span></div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-q">"type"</span>: <span class="t-s">"http"</span><span class="t-k">,</span></div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-q">"url"</span>: <span class="t-s">"http://localhost:9847/mcp"</span></div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-k">}</span></div>
+              <div>&nbsp;&nbsp;<span class="t-k">}</span></div>
+              <div><span class="t-k">}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="step-num">// 03</div>
+          <div class="step-title">Ask Claude anything</div>
+          <div class="term">
+            <div class="term-chrome">
+              <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
+            </div>
+            <div class="term-body">
+              <div class="t-o" style="font-size:0.62rem">// Claude Code</div>
+              <div style="color:var(--text-dim);margin-bottom:6px">You: "why is my list empty?"</div>
+              <div class="t-k" style="font-size:0.62rem">▶ get_network_history</div>
+              <div class="t-k" style="font-size:0.62rem;margin-bottom:6px">▶ get_logs</div>
+              <div class="t-ok">Claude: 3 failed requests</div>
+              <div class="t-ok">to /api/feed — 401.</div>
+              <div class="t-ok">Auth token missing.</div>
+              <div class="t-k" style="font-size:0.62rem;margin-top:6px">▶ hot_reload → ✓ fixed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA ─── -->
+  <section class="cta-sec">
+    <div class="container">
+      <div class="cta-card reveal">
+        <div class="chip cta-chip">
+          <span class="chip-dot"></span>
+          Release Before Ready · Guadalajara 2026
+        </div>
+        <h2 class="cta-title">The iOS dev loop,<br>finally closed.</h2>
+        <p class="cta-sub">
+          If you ship Swift and use AI, Apus is built for you.<br>
+          Free. Open source. One command to start.
+        </p>
+        <div class="cta-actions">
+          <a href="/vote" class="btn btn-primary btn-xl">Vote for Apus ↗</a>
+          <a href="/demo" class="btn btn-ghost btn-xl">Watch Demo</a>
+          <a href="https://github.com/ivanhoe/apus" target="_blank" class="btn btn-ghost btn-xl">Star on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer>
+    <div class="container foot-inner">
+      <p class="foot-text"><strong>Apus</strong> · The first AI-native iOS dev loop · Apache 2.0</p>
+      <div class="foot-links">
+        <a href="https://github.com/ivanhoe/apus" target="_blank">GitHub</a>
+        <a href="https://www.releasebeforeready.com/" target="_blank">Release Before Ready</a>
+        <a href="/vote">Vote</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // Loop node cycling
+    const nodes = document.querySelectorAll('.loop-node');
+    let activeNode = 0;
+    function cycleLoop() {
+      nodes.forEach(n => n.classList.remove('active'));
+      nodes[activeNode].classList.add('active');
+      activeNode = (activeNode + 1) % nodes.length;
+    }
+    cycleLoop();
+    setInterval(cycleLoop, 1100);
+
+    // Simulator row flash on hot reload
+    const rows = ['ar1','ar2','ar3','ar4'];
+    setInterval(() => {
+      rows.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('flash');
+        setTimeout(() => el.classList.remove('flash'), 900);
+      });
+    }, 9000);
+
+    // Nav active link on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 100) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current
+          ? 'var(--text)' : '';
+      });
+    }, { passive: true });
+  </script>
+</body>
+</html>
