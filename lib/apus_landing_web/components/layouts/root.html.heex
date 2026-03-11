@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <meta
+      name="description"
+      content="Runtime visibility for coding agents. Give your AI eyes on your iOS app."
+    />
+    <.live_title default="Apus" suffix=" — Runtime visibility for coding agents">
+      {assigns[:page_title]}
+    </.live_title>
+    <%= if PhoenixVite.Components.has_vite_watcher?(ApusLandingWeb.Endpoint) or
+            File.exists?(Path.join(:code.priv_dir(:apus_landing), "static/.vite/manifest.json")) do %>
+      <PhoenixVite.Components.assets
+        names={["js/app.js", "css/app.css"]}
+        manifest={{:apus_landing, "priv/static/.vite/manifest.json"}}
+        dev_server={PhoenixVite.Components.has_vite_watcher?(ApusLandingWeb.Endpoint)}
+        to_url={fn p -> static_url(@conn, p) end}
+      />
+    <% end %>
+    <script type="text/javascript">
+      (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "vsor4s4asx");
+    </script>
+  </head>
+  <body class="bg-[#0A0F1C] antialiased">
+    {@inner_content}
+  </body>
+</html>
