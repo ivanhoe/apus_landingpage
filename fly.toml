@@ -1,12 +1,11 @@
-# fly.toml app configuration file generated for apus-landing on 2026-03-07T17:34:59-06:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
 app = 'apus-landing'
-primary_region = 'iad'
+primary_region = 'dfw'
 
 [build]
+
+[env]
+  PHX_HOST = 'apus-landing.fly.dev'
+  PORT = '8080'
 
 [http_service]
   internal_port = 8080
@@ -20,4 +19,3 @@ primary_region = 'iad'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 1024
