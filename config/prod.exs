@@ -8,7 +8,7 @@ config :live_vue, ssr_module: LiveVue.SSR.NodeJS, ssr: true
 # before starting your production server.
 config :apus_landing, ApusLandingWeb.Endpoint, []
 
-# Force using SSL in production. This also sets the "strict-security-transport" header,
+# Force using SSL in production. This also sets the "Strict-Transport-Security" header,
 # known as HSTS. If you have a health check endpoint, you may want to exclude it below.
 # Note `:force_ssl` is required to be set at compile-time.
 config :apus_landing, ApusLandingWeb.Endpoint,

@@ -10,7 +10,7 @@ import Config
 config :live_vue, ssr: true
 
 config :phoenix_vite, PhoenixVite.Npm,
-  assets: [args: [], cd: __DIR__],
+  assets: [args: [], cd: Path.expand("..", __DIR__)],
   vite: [
     args: ~w(exec -- vite),
     cd: Path.expand("../assets", __DIR__),

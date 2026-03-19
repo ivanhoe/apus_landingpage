@@ -16,8 +16,7 @@
   },
   "include": [
     "./assets/js/**/*",
-    "./assets/vue/**/*",
-    "./lib/apus_landing_web/**/*"
+    "./assets/vue/**/*"
   ],
   "exclude": [
     "node_modules"

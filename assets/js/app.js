@@ -29,7 +29,7 @@ import {getHooks} from "live_vue"
 import liveVueApp from "../vue"
 
 const themeStorageKey = "phx:theme"
-const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content") ?? ""
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},

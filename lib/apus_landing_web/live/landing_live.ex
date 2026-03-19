@@ -587,7 +587,7 @@ defmodule ApusLandingWeb.LandingLive do
     ]}>
       <.lucide_icon
         name={@icon}
-        class={["w-7 h-7", if(@active, do: "text-[#22D3EE]", else: "text-[#22D3EE]")]}
+        class={["w-7 h-7", if(@active, do: "text-[#22D3EE]", else: "text-[#64748B]")]}
       />
       <span class={[
         "font-['JetBrains_Mono'] text-sm font-semibold",
