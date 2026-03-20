@@ -13,4 +13,12 @@ defmodule ApusLandingWeb.LandingLiveTest do
     refute has_element?(view, "#chat")
     refute render(view) =~ "Ask about Apus"
   end
+
+  test "renders the hero install snippet with copy button", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/")
+
+    assert has_element?(view, "#hero-install")
+    assert has_element?(view, "#hero-install [data-copy-btn]")
+    assert render(view) =~ "curl -fsSL https://raw.githubusercontent.com/ivanhoe/apus_cli/main/scripts/install.sh | bash"
+  end
 end

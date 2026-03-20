@@ -127,6 +127,71 @@ defmodule ApusLandingWeb.LandingLive do
               </a>
             </div>
 
+            <%!-- Install one-liner --%>
+            <div
+              id="hero-install"
+              phx-hook=".CopyInstall"
+              class="w-full max-w-[680px] flex items-stretch bg-[#0A0F1C] rounded-lg border border-[#1E293B] overflow-hidden"
+            >
+              <div class="flex items-center px-4 shrink-0">
+                <span class="font-['JetBrains_Mono'] text-sm text-[#64748B]">$</span>
+              </div>
+              <div class="flex-1 overflow-x-auto">
+                <code
+                  data-command="curl -fsSL https://raw.githubusercontent.com/ivanhoe/apus_cli/main/scripts/install.sh | bash"
+                  class="block py-3 px-2 font-['JetBrains_Mono'] text-sm text-[#22D3EE] whitespace-nowrap"
+                >
+                  curl -fsSL https://raw.githubusercontent.com/ivanhoe/apus_cli/main/scripts/install.sh | bash
+                </code>
+              </div>
+              <button
+                data-copy-btn
+                class="shrink-0 flex items-center gap-1.5 py-3 px-4 border-l border-[#1E293B] text-[#94A3B8] hover:text-white hover:bg-white/5 transition-colors font-['JetBrains_Mono'] text-xs"
+                aria-label="Copy install command"
+              >
+                <span data-copy-icon>
+                  <svg
+                    class="w-3.5 h-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                  </svg>
+                </span>
+                <span data-copy-label>Copy</span>
+              </button>
+            </div>
+
+            <script :type={Phoenix.LiveView.ColocatedHook} name=".CopyInstall">
+              export default {
+                mounted() {
+                  const btn = this.el.querySelector("[data-copy-btn]")
+                  const cmd = this.el.querySelector("[data-command]").dataset.command
+                  const icon = this.el.querySelector("[data-copy-icon]")
+                  const label = this.el.querySelector("[data-copy-label]")
+
+                  btn.addEventListener("click", async () => {
+                    try {
+                      await navigator.clipboard.writeText(cmd)
+                      icon.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`
+                      label.textContent = "Copied!"
+                      btn.classList.replace("text-[#94A3B8]", "text-[#22D3EE]")
+                      setTimeout(() => {
+                        icon.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`
+                        label.textContent = "Copy"
+                        btn.classList.replace("text-[#22D3EE]", "text-[#94A3B8]")
+                      }, 2000)
+                    } catch (_) {}
+                  })
+                }
+              }
+            </script>
+
             <%!-- Context badges --%>
             <div class="flex flex-wrap items-center justify-center gap-3 mt-4">
               <.context_badge icon="scroll-text" label="Logs" />
