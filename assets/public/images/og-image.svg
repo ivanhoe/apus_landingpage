@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0A0F1C"/>
+
+  <!-- Subtle grid -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.5"/>
+
+  <!-- Glow -->
+  <ellipse cx="600" cy="200" rx="400" ry="250" fill="#22D3EE" opacity="0.06"/>
+
+  <!-- Logo mark -->
+  <rect x="540" y="120" width="50" height="50" rx="10" fill="#22D3EE" opacity="0.15"/>
+  <polyline points="548,147 558,137 548,127" fill="none" stroke="#22D3EE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="562" x2="578" y1="149" y2="149" stroke="#22D3EE" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Wordmark -->
+  <text x="600" y="155" font-family="monospace" font-size="32" font-weight="700" fill="#22D3EE" text-anchor="middle" letter-spacing="4">Apus</text>
+
+  <!-- Headline -->
+  <text x="600" y="240" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="56" font-weight="700" fill="#FFFFFF" text-anchor="middle">Give your AI agent</text>
+  <text x="600" y="310" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="56" font-weight="700" fill="#22D3EE" text-anchor="middle">eyes</text>
+  <text x="600" y="370" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="56" font-weight="700" fill="#FFFFFF" text-anchor="middle">on your iOS app</text>
+
+  <!-- Subheadline -->
+  <text x="600" y="440" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="24" fill="#94A3B8" text-anchor="middle">Runtime visibility for coding agents · MCP-powered iOS inspector</text>
+
+  <!-- Feature pills -->
+  <rect x="180" y="490" width="130" height="44" rx="22" fill="#1E293B"/>
+  <text x="245" y="518" font-family="monospace" font-size="14" fill="#FFFFFF" text-anchor="middle">Logs</text>
+
+  <rect x="326" y="490" width="130" height="44" rx="22" fill="#1E293B"/>
+  <text x="391" y="518" font-family="monospace" font-size="14" fill="#FFFFFF" text-anchor="middle">Network</text>
+
+  <rect x="472" y="490" width="130" height="44" rx="22" fill="#1E293B"/>
+  <text x="537" y="518" font-family="monospace" font-size="14" fill="#FFFFFF" text-anchor="middle">Screenshots</text>
+
+  <rect x="618" y="490" width="150" height="44" rx="22" fill="#1E293B"/>
+  <text x="693" y="518" font-family="monospace" font-size="14" fill="#FFFFFF" text-anchor="middle">UI Hierarchy</text>
+
+  <rect x="784" y="490" width="130" height="44" rx="22" fill="#1E293B"/>
+  <text x="849" y="518" font-family="monospace" font-size="14" fill="#FFFFFF" text-anchor="middle">Hot Reload</text>
+
+  <!-- URL -->
+  <text x="600" y="590" font-family="monospace" font-size="18" fill="#475569" text-anchor="middle">getapus.dev</text>
+</svg>

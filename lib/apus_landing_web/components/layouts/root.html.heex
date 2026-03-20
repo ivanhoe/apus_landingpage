@@ -11,6 +11,45 @@
     <.live_title default="Apus" suffix=" — Runtime visibility for coding agents">
       {assigns[:page_title]}
     </.live_title>
+    <link rel="canonical" href="https://getapus.dev/" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://getapus.dev/" />
+    <meta property="og:title" content="Apus — Runtime visibility for coding agents" />
+    <meta
+      property="og:description"
+      content="Runtime visibility for coding agents. Give your AI eyes on your iOS app."
+    />
+    <meta property="og:image" content="https://getapus.dev/images/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Apus — Runtime visibility for coding agents" />
+    <meta
+      name="twitter:description"
+      content="Runtime visibility for coding agents. Give your AI eyes on your iOS app."
+    />
+    <meta name="twitter:image" content="https://getapus.dev/images/og-image.svg" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Apus",
+        "url": "https://getapus.dev/",
+        "description": "Runtime visibility for coding agents. Give your AI eyes on your iOS app.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Apus",
+          "url": "https://getapus.dev/"
+        }
+      }
+    </script>
     <%= if PhoenixVite.Components.has_vite_watcher?(ApusLandingWeb.Endpoint) or
             File.exists?(Path.join(:code.priv_dir(:apus_landing), "static/.vite/manifest.json")) do %>
       <PhoenixVite.Components.assets
