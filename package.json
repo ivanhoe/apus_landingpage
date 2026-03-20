@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "gen-assets": "node assets/gen_og_image.mjs"
+  },
   "dependencies": {
     "@vueuse/core": "^13.7.0",
     "live_vue": "file:./deps/live_vue",

@@ -58,6 +58,10 @@ RUN mix compile
 
 COPY assets assets
 
+# Generate branded PNG assets (og-image.png, apple-touch-icon.png) from source
+# Uses only Node built-ins — no extra packages needed.
+RUN node assets/gen_og_image.mjs
+
 # compile assets
 RUN mix assets.deploy
 

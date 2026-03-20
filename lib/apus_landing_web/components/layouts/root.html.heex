@@ -8,6 +8,37 @@
       name="description"
       content="Runtime visibility for coding agents. Give your AI eyes on your iOS app."
     />
+    <link rel="canonical" href="https://getapus.dev/" />
+
+    <%!-- Favicon --%>
+    <link rel="icon" href="/images/logo.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <%!-- Open Graph --%>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Apus" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://getapus.dev/" />
+    <meta property="og:title" content="Apus — Runtime visibility for coding agents" />
+    <meta
+      property="og:description"
+      content="Runtime visibility for coding agents. Give your AI eyes on your iOS app."
+    />
+    <meta property="og:image" content="https://getapus.dev/images/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+
+    <%!-- Twitter Card --%>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Apus — Runtime visibility for coding agents" />
+    <meta
+      name="twitter:description"
+      content="Runtime visibility for coding agents. Give your AI eyes on your iOS app."
+    />
+    <meta name="twitter:image" content="https://getapus.dev/images/og-image.png" />
+
     <.live_title default="Apus" suffix=" — Runtime visibility for coding agents">
       {assigns[:page_title]}
     </.live_title>
@@ -20,6 +51,24 @@
         to_url={fn p -> static_url(@conn, p) end}
       />
     <% end %>
+    <%!-- JSON-LD Structured Data --%>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Apus",
+        "url": "https://getapus.dev/",
+        "description": "Runtime visibility for coding agents. Give your AI eyes on your iOS app.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS, iOS",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+
     <script type="text/javascript">
       (function(c,l,a,r,i,t,y){
           c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
