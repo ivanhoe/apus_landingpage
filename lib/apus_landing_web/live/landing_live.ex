@@ -5,8 +5,14 @@ defmodule ApusLandingWeb.LandingLive do
   def mount(_params, _session, socket) do
     {:ok,
      assign(socket,
-       page_title: "Runtime visibility for coding agents"
+       page_title: "Runtime visibility for coding agents",
+       menu_open: false
      )}
+  end
+
+  @impl true
+  def handle_event("toggle_menu", _params, socket) do
+    {:noreply, assign(socket, menu_open: !socket.assigns.menu_open)}
   end
 
   @impl true
@@ -18,8 +24,8 @@ defmodule ApusLandingWeb.LandingLive do
         class="bg-[#0A0F1C] text-white font-[Inter,system-ui,sans-serif] leading-relaxed overflow-x-hidden"
       >
         <%!-- HEADER --%>
-        <nav class="fixed top-0 left-0 right-0 z-50 px-6 lg:px-20 py-5 backdrop-blur-md bg-[#0A0F1C]/80 border-b border-white/5">
-          <div class="max-w-[1400px] mx-auto flex justify-between items-center">
+        <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0A0F1C]/80 border-b border-white/5">
+          <div class="max-w-[1400px] mx-auto px-6 lg:px-20 py-5 flex justify-between items-center">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded bg-[#22D3EE]/20 flex items-center justify-center">
                 <svg
@@ -52,7 +58,62 @@ defmodule ApusLandingWeb.LandingLive do
               <a
                 id="landing-header-cta"
                 href="#setup"
-                class="inline-flex items-center gap-2 py-2.5 px-5 bg-[#22D3EE] text-[#0A0F1C] text-sm font-['JetBrains_Mono'] font-semibold rounded-lg hover:bg-[#22D3EE]/90 transition-colors"
+                class="hidden sm:inline-flex items-center gap-2 py-2.5 px-5 bg-[#22D3EE] text-[#0A0F1C] text-sm font-['JetBrains_Mono'] font-semibold rounded-lg hover:bg-[#22D3EE]/90 transition-colors"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                Get Started
+              </a>
+              <%!-- Hamburger button (mobile only) --%>
+              <button
+                phx-click="toggle_menu"
+                class="md:hidden flex flex-col justify-center gap-[5px] w-8 h-8 -mr-1"
+                aria-label="Toggle menu"
+                aria-expanded={to_string(@menu_open)}
+              >
+                <span class={[
+                  "block w-5 h-[2px] bg-white rounded-full transition-all duration-300 origin-center",
+                  if(@menu_open, do: "rotate-45 translate-y-[7px]", else: "")
+                ]}>
+                </span>
+                <span class={[
+                  "block w-5 h-[2px] bg-white rounded-full transition-all duration-300",
+                  if(@menu_open, do: "opacity-0 scale-x-0", else: "")
+                ]}>
+                </span>
+                <span class={[
+                  "block w-5 h-[2px] bg-white rounded-full transition-all duration-300 origin-center",
+                  if(@menu_open, do: "-rotate-45 -translate-y-[7px]", else: "")
+                ]}>
+                </span>
+              </button>
+            </div>
+          </div>
+          <%!-- Mobile menu drawer --%>
+          <div class={[
+            "md:hidden overflow-hidden transition-all duration-300 ease-in-out",
+            if(@menu_open, do: "max-h-48 opacity-100", else: "max-h-0 opacity-0")
+          ]}>
+            <div class="flex flex-col gap-1 px-6 pb-4 border-t border-white/5 pt-3">
+              <a
+                href="#features"
+                phx-click="toggle_menu"
+                class="py-2.5 text-sm text-[#94A3B8] hover:text-white transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="#setup"
+                phx-click="toggle_menu"
+                class="py-2.5 text-sm text-[#94A3B8] hover:text-white transition-colors"
+              >
+                Setup
+              </a>
+              <a
+                href="#setup"
+                phx-click="toggle_menu"
+                class="mt-2 inline-flex items-center gap-2 py-2.5 px-5 bg-[#22D3EE] text-[#0A0F1C] text-sm font-['JetBrains_Mono'] font-semibold rounded-lg self-start hover:bg-[#22D3EE]/90 transition-colors"
               >
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -371,7 +432,7 @@ defmodule ApusLandingWeb.LandingLive do
               </p>
             </div>
 
-            <div class="flex flex-wrap items-center justify-center gap-3">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3">
               <.loop_step icon="rocket" title="Bootstrap" desc="Init project with SDK" active={false} />
               <.loop_arrow />
               <.loop_step icon="search" title="Inspect" desc="Logs, network, UI tree" active={false} />
@@ -582,26 +643,29 @@ defmodule ApusLandingWeb.LandingLive do
   defp loop_step(assigns) do
     ~H"""
     <div class={[
-      "w-[180px] p-5 rounded-xl flex flex-col items-center gap-3 text-center",
+      "w-full sm:w-[180px] p-5 rounded-xl flex flex-row sm:flex-col items-center gap-4 sm:gap-3 text-left sm:text-center",
       if(@active, do: "bg-[#0A0F1C] border border-[#22D3EE]/25", else: "bg-[#1E293B]")
     ]}>
       <.lucide_icon
         name={@icon}
-        class={["w-7 h-7", if(@active, do: "text-[#22D3EE]", else: "text-[#64748B]")]}
+        class={["w-7 h-7 shrink-0", if(@active, do: "text-[#22D3EE]", else: "text-[#64748B]")]}
       />
-      <span class={[
-        "font-['JetBrains_Mono'] text-sm font-semibold",
-        if(@active, do: "text-[#22D3EE]", else: "text-white")
-      ]}>
-        {@title}
-      </span>
-      <span class="text-xs text-[#94A3B8]">{@desc}</span>
+      <div class="flex flex-col gap-0.5 sm:items-center">
+        <span class={[
+          "font-['JetBrains_Mono'] text-sm font-semibold",
+          if(@active, do: "text-[#22D3EE]", else: "text-white")
+        ]}>
+          {@title}
+        </span>
+        <span class="text-xs text-[#94A3B8]">{@desc}</span>
+      </div>
     </div>
     """
   end
 
   defp loop_arrow(assigns) do
     ~H"""
+    <%!-- Right arrow on sm+ screens --%>
     <svg
       class="w-6 h-6 text-[#22D3EE] hidden sm:block"
       viewBox="0 0 24 24"
@@ -612,6 +676,18 @@ defmodule ApusLandingWeb.LandingLive do
       stroke-linejoin="round"
     >
       <path d="m9 18 6-6-6-6" />
+    </svg>
+    <%!-- Down arrow on mobile --%>
+    <svg
+      class="w-6 h-6 text-[#22D3EE] sm:hidden"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="m6 9 6 6 6-6" />
     </svg>
     """
   end
