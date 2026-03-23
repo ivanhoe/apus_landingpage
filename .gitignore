@@ -34,3 +34,7 @@ apus_landing-*.tar
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 node_modules/
+
+# PNG assets generated from SVG sources via `mix gen_assets` — do not commit binaries.
+/assets/public/apple-touch-icon.png
+/assets/public/images/og-image.png
