@@ -127,6 +127,48 @@ defmodule ApusLandingWeb.LandingLive do
               </a>
             </div>
 
+            <%!-- Install snippet --%>
+            <div
+              id="hero-install-snippet"
+              phx-hook=".CopyInstall"
+              class="flex items-center gap-3 w-full max-w-[700px] py-3 px-4 bg-[#0F172A] border border-[#1E293B] rounded-lg overflow-x-auto"
+            >
+              <span class="shrink-0 font-['JetBrains_Mono'] text-xs text-[#64748B] select-none">$</span>
+              <code class="flex-1 font-['JetBrains_Mono'] text-sm text-[#22D3EE] whitespace-nowrap overflow-x-auto">curl -fsSL https://raw.githubusercontent.com/ivanhoe/apus_cli/main/scripts/install.sh | bash</code>
+              <button
+                id="hero-copy-btn"
+                aria-label="Copy install command"
+                class="shrink-0 flex items-center gap-1.5 py-1.5 px-3 rounded-md bg-[#1E293B] hover:bg-[#334155] transition-colors font-['JetBrains_Mono'] text-xs text-[#94A3B8] hover:text-white"
+              >
+                <svg id="hero-copy-icon" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                </svg>
+                <span id="hero-copy-label">Copy</span>
+              </button>
+            </div>
+            <script :type={Phoenix.LiveView.ColocatedHook} name=".CopyInstall">
+              export default {
+                mounted() {
+                  const btn = this.el.querySelector("#hero-copy-btn")
+                  const label = this.el.querySelector("#hero-copy-label")
+                  const icon = this.el.querySelector("#hero-copy-icon")
+                  const command = "curl -fsSL https://raw.githubusercontent.com/ivanhoe/apus_cli/main/scripts/install.sh | bash"
+                  btn.addEventListener("click", () => {
+                    navigator.clipboard.writeText(command).then(() => {
+                      label.textContent = "Copied!"
+                      icon.innerHTML = '<polyline points="20 6 9 17 4 12"/>'
+                      btn.classList.add("text-[#22D3EE]")
+                      setTimeout(() => {
+                        label.textContent = "Copy"
+                        icon.innerHTML = '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'
+                        btn.classList.remove("text-[#22D3EE]")
+                      }, 2000)
+                    })
+                  })
+                }
+              }
+            </script>
+
             <%!-- Context badges --%>
             <div class="flex flex-wrap items-center justify-center gap-3 mt-4">
               <.context_badge icon="scroll-text" label="Logs" />
